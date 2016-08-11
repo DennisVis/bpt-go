@@ -1,8 +1,8 @@
 package persistence
 
 import (
-	"github.com/DennisVis/bpt-go/models"
 	"database/sql"
+	"github.com/DennisVis/bpt-go/models"
 )
 
 type DB interface {

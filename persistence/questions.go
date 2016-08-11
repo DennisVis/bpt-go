@@ -23,10 +23,10 @@ func (qDao QuestionsDAO) fetchQuestions(query string, args ...interface{}) ([]mo
 	for rows.Next() {
 
 		var (
-			id int
-			name string
+			id       int
+			name     string
 			language string
-			value string
+			value    string
 		)
 
 		err := rows.Scan(&id, &name, &language, &value)
@@ -50,23 +50,13 @@ func (qDao QuestionsDAO) fetchQuestions(query string, args ...interface{}) ([]mo
 func (qDao QuestionsDAO) insertLabels(tx *sql.Tx, questionId int, labels map[string]string) error {
 
 	for language, value := range labels {
-
-		var labelId int
-		err := tx.QueryRow(
-			"INSERT INTO labels(language, value) VALUES($1, $2) RETURNING id;",
-			language, value).Scan(&labelId)
+		stmt, err := tx.Prepare("INSERT INTO labels(language, value, question_id) VALUES($1, $2, $3) RETURNING id;")
 		if err != nil {
 			tx.Rollback()
 			return err
 		}
 
-		stmt, err := tx.Prepare("INSERT INTO labels_per_question(question_id, label_id) VALUES($1, $2);")
-		if err != nil {
-			tx.Rollback()
-			return err
-		}
-
-		_, err = stmt.Exec(questionId, labelId)
+		_, err = stmt.Exec(language, value, questionId)
 		if err != nil {
 			tx.Rollback()
 			return err
@@ -81,10 +71,8 @@ func (qDao QuestionsDAO) All() ([]models.Model, error) {
 	return qDao.fetchQuestions(`
 		SELECT questions.id, questions.name, labels.language, labels.value
 		FROM questions
-		LEFT OUTER JOIN labels_per_question
-		ON labels_per_question.question_id = questions.id
 		LEFT OUTER JOIN labels
-		ON labels_per_question.label_id = labels.id;
+		ON labels.question_id = questions.id;
 	`)
 }
 
@@ -121,10 +109,8 @@ func (qDao QuestionsDAO) Read(questionId int) (*models.Model, error) {
 	questions, err := qDao.fetchQuestions(`
 		SELECT questions.id, questions.name, labels.language, labels.value
 		FROM questions
-		LEFT OUTER JOIN labels_per_question
-		ON labels_per_question.question_id = questions.id
 		LEFT OUTER JOIN labels
-		ON labels_per_question.label_id = labels.id
+		ON labels.question_id = questions.id
 		WHERE questions.id = $1;
 	`, questionId)
 
@@ -161,7 +147,7 @@ func (qDao QuestionsDAO) Update(questionId int, model models.Model) (models.Mode
 	//
 
 	// Remove labels
-	_, err = tx.Exec("DELETE FROM labels_per_question WHERE question_id = $1;", question.Id)
+	_, err = tx.Exec("DELETE FROM labels WHERE question_id = $1;", question.Id)
 	if err != nil {
 		tx.Rollback()
 		return question, err

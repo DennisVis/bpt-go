@@ -1,10 +1,10 @@
 package controllers
 
 import (
-	"net/http"
 	"fmt"
-	"strings"
 	"log"
+	"net/http"
+	"strings"
 )
 
 func serverError(w http.ResponseWriter, err error) {
@@ -28,7 +28,6 @@ func badRequest(w http.ResponseWriter, err error) {
 	r := strings.NewReplacer("\"", "'")
 	w.Write([]byte(fmt.Sprintf(`{"message": "%s"}`, r.Replace(err.Error()))))
 }
-
 
 func notFound(w http.ResponseWriter) {
 

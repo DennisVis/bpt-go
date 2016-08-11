@@ -1,14 +1,14 @@
 package controllers
 
 import (
-	"net/http"
 	"encoding/json"
+	"github.com/DennisVis/bpt-go/models"
+	"github.com/DennisVis/bpt-go/persistence"
 	"github.com/gorilla/mux"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"strconv"
-	"github.com/DennisVis/bpt-go/persistence"
-	"github.com/DennisVis/bpt-go/models"
 )
 
 func AllQuestionsController(dao persistence.DAO) http.HandlerFunc {

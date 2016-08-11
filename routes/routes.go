@@ -1,17 +1,17 @@
 package routes
 
 import (
-	"net/http"
 	"github.com/DennisVis/bpt-go/controllers"
 	"github.com/DennisVis/bpt-go/persistence"
+	"net/http"
 )
 
 type Route struct {
 	Name           string
-	Method         string
+	Methods        []string
 	Pattern        string
 	ModelType      string
-	HandlerFactory func (dao persistence.DAO) http.HandlerFunc
+	HandlerFactory func(dao persistence.DAO) http.HandlerFunc
 }
 
 type Routes []Route
@@ -19,55 +19,55 @@ type Routes []Route
 var routes = Routes{
 	Route{
 		"Index",
-		"GET",
+		[]string{"GET", "OPTIONS"},
 		"/",
 		"",
-		func (dao persistence.DAO) http.HandlerFunc {
+		func(dao persistence.DAO) http.HandlerFunc {
 			return controllers.IndexController
 		},
 	},
 	Route{
 		"AllQuestions",
-		"GET",
+		[]string{"GET", "OPTIONS"},
 		"/questions",
 		"question",
-		func (dao persistence.DAO) http.HandlerFunc {
+		func(dao persistence.DAO) http.HandlerFunc {
 			return controllers.AllQuestionsController(dao)
 		},
 	},
 	Route{
 		"CreateQuestion",
-		"POST",
+		[]string{"POST", "OPTIONS"},
 		"/questions",
 		"question",
-		func (dao persistence.DAO) http.HandlerFunc {
+		func(dao persistence.DAO) http.HandlerFunc {
 			return controllers.CreateQuestionController(dao)
 		},
 	},
 	Route{
 		"ReadQuestion",
-		"GET",
+		[]string{"GET", "OPTIONS"},
 		"/questions/{questionId}",
 		"question",
-		func (dao persistence.DAO) http.HandlerFunc {
+		func(dao persistence.DAO) http.HandlerFunc {
 			return controllers.ReadQuestionController(dao)
 		},
 	},
 	Route{
 		"UpdateQuestion",
-		"PUT",
+		[]string{"PUT", "OPTIONS"},
 		"/questions/{questionId}",
 		"question",
-		func (dao persistence.DAO) http.HandlerFunc {
+		func(dao persistence.DAO) http.HandlerFunc {
 			return controllers.UpdateQuestionController(dao)
 		},
 	},
 	Route{
 		"DeleteQuestion",
-		"DELETE",
+		[]string{"DELETE", "OPTIONS"},
 		"/questions/{questionId}",
 		"question",
-		func (dao persistence.DAO) http.HandlerFunc {
+		func(dao persistence.DAO) http.HandlerFunc {
 			return controllers.DeleteQuestionController(dao)
 		},
 	},
